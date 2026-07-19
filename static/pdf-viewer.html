@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #525659; }
+#viewer { width: 100%; min-height: 100vh; }
+canvas { display: block; margin: 0 auto; width: 100%; }
+.loading { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; }
+.error { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; color: #ff6b6b; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="loading" id="loading">加载PDF中...</div>
+<div id="viewer"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.9.155/pdf.min.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.9.155/pdf.worker.min.mjs';
+
+async function loadPDF(url) {
+  try {
+    const pdf = await pdfjsLib.getDocument(url).promise;
+    document.getElementById('loading').style.display = 'none';
+    const viewer = document.getElementById('viewer');
+    
+    for (let i = 1; i <= Math.min(pdf.numPages, 5); i++) {
+      const page = await pdf.getPage(i);
+      const viewport = page.getViewport({ scale: 1.5 });
+      const canvas = document.createElement('canvas');
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
+      const ctx = canvas.getContext('2d');
+      await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+      viewer.appendChild(canvas);
+    }
+  } catch(e) {
+    document.getElementById('loading').textContent = 'PDF加载失败: ' + e.message;
+    document.getElementById('loading').className = 'error';
+  }
+}
+
+// 从 URL 参数获取 PDF 地址
+const params = new URLSearchParams(location.search);
+const pdfUrl = params.get('url');
+const token = params.get('token');
+
+if (pdfUrl) {
+  if (token) {
+    loadPDF(pdfUrl, token);
+  } else {
+    loadPDF(pdfUrl);
+  }
+} else {
+  document.getElementById('loading').textContent = '缺少PDF地址';
+  document.getElementById('loading').className = 'error';
+}
+</script>
+</body>
+</html>

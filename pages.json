@@ -7,6 +7,16 @@
 				"navigationStyle": "custom",
 				"disableScroll": true
 			}
+		},
+		{
+			"path": "pages/pdf-view/pdf-view",
+			"style": {
+				"navigationBarTitleText": "PDF预览",
+				"app-plus": {
+					"animationDuration": 300,
+					"animationType": "slide-in-right"
+				}
+			}
 		}
 	],
 	"globalStyle": {

@@ -11,7 +11,6 @@
         <view class="right-flex-row">
           <!-- 右列1：四强/四优 + Page2 -->
           <view class="right-col">
-            <!-- 四强/四优 -->
             <view class="sqiq-boxes">
               <view class="sqiq-item">
                 <view class="sqiq-header sqiq-red">四强</view>
@@ -32,7 +31,6 @@
                 </view>
               </view>
             </view>
-            <!-- 考核评比 -->
             <view class="page2-wrap">
               <Page2 />
             </view>

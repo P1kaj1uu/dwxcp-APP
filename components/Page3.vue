@@ -2,61 +2,63 @@
   <view class="page3">
     <view v-for="category in categories" :key="category" class="pdf-card">
       <view class="pdf-card-header">
-        <text class="pdf-card-title">{{ category }}</text>
+        <image :src="hbgIconImage" mode="widthFix" class="pdf-card-header-bg"></image>
+        <text class="pdf-card-header-title">{{ category }}</text>
       </view>
-      <view class="pdf-viewer-wrap">
-        <view v-if="pdfLoading[category]" class="pdf-loading">
-          <text>加载中...</text>
-        </view>
-        <web-view
-          v-if="pdfReady[category]"
-          :src="pdfUrls[category]"
-          class="pdf-webview"
-        ></web-view>
+      <view class="pdf-card-body">
+        <template v-if="pages[category] && pages[category].length > 0">
+          <image :src="pages[category][currentIdx[category]]" mode="aspectFit" class="pdf-page-img"></image>
+        </template>
+        <text v-else class="pdf-status">{{ loading[category] ? '加载中...' : '暂无文档' }}</text>
       </view>
     </view>
   </view>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { ensureLogin } from '@/utils/auth'
 import { getPdfListApi } from '@/api/pdf'
 import { getToken } from '@/utils/token'
+import { hbgIconImage } from '@/utils/images'
+import { get } from '@/utils/request'
 
 const categories = ['重点工作', '党务公开', '光荣榜']
-const pdfUrls = ref({})
-const pdfLoading = ref({ '重点工作': true, '党务公开': true, '光荣榜': true })
-const pdfReady = ref({ '重点工作': false, '党务公开': false, '光荣榜': false })
+const fileIds = ref({})
+const pages = ref({ '重点工作': [], '党务公开': [], '光荣榜': [] })
+const currentIdx = ref({ '重点工作': 0, '党务公开': 0, '光荣榜': 0 })
+const loading = ref({ '重点工作': true, '党务公开': true, '光荣榜': true })
+let timers = {}
 
-async function fetchPdfData() {
-  const token = getToken()
-  
-  await Promise.all(categories.map(async (category) => {
+onUnmounted(() => { Object.values(timers).forEach(t => clearInterval(t)) })
+
+async function fetchAll() {
+  for (const category of categories) {
     try {
       const res = await getPdfListApi({ type: category })
       if (res.data?.code === 200 && res.data.data?.length > 0) {
-        const file = res.data.data[0]
-        // 直接使用PDF预览URL，加token参数
-        // 服务器返回 Content-Type: application/pdf 时，webview内置PDF渲染器直接显示
-        const previewUrl = `http://123.60.91.107:2645/api/pdf/preview?id=${file.id}&token=${token}`
-        pdfUrls.value[category] = previewUrl
-        pdfReady.value[category] = true
-        console.log(`[Page3] ${category} URL:`, previewUrl)
+        const f = res.data.data[0]
+        fileIds.value[category] = f.id
+        // 获取该PDF的每页图片
+        const imgRes = await get('/pdf/preview-images', { id: f.id })
+        if (imgRes.data?.code === 200 && imgRes.data.data?.length > 0) {
+          pages.value[category] = imgRes.data.data
+          if (imgRes.data.data.length > 1) {
+            timers[category] = setInterval(() => {
+              currentIdx.value[category] = (currentIdx.value[category] + 1) % imgRes.data.data.length
+            }, 4000)
+          }
+        }
       }
-    } catch (error) {
-      console.error(`[Page3] ${category} 失败:`, error)
-    } finally {
-      pdfLoading.value[category] = false
-    }
-  }))
+    } catch (e) { console.error('[Page3]', category, '失败:', e)
+    } finally { loading.value[category] = false }
+  }
 }
 
 onMounted(async () => {
   await ensureLogin()
-  await fetchPdfData()
-  // 10秒安全超时
-  setTimeout(() => { categories.forEach(c => { pdfLoading.value[c] = false }) }, 10000)
+  await fetchAll()
+  setTimeout(() => categories.forEach(c => { loading.value[c] = false }), 15000)
 })
 </script>
 
@@ -66,57 +68,45 @@ onMounted(async () => {
   flex: 1;
   display: flex;
   flex-direction: row;
-  gap: 6px;
-  padding: 6px;
+  gap: 8px;
+  padding: 8px;
   box-sizing: border-box;
   background: #f7eaca;
   min-height: 0;
 }
-
 .pdf-card {
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 0;
-  overflow: hidden;
-}
-
-.pdf-card-header {
-  background: #d92228;
-  padding: 6px;
-  text-align: center;
-  flex-shrink: 0;
-}
-
-.pdf-card-title {
-  font-size: 16px;
-  font-weight: bold;
-  color: #fbbf24;
-  letter-spacing: 2px;
-}
-
-.pdf-viewer-wrap {
-  flex: 1;
-  min-height: 0;
-  position: relative;
-  overflow: hidden;
   border: 2px solid #d92228;
-  border-top: none;
+  overflow: hidden;
+  border-radius: 2px;
 }
-
-.pdf-loading {
-  position: absolute;
-  inset: 0;
+.pdf-card-header {
+  position: relative;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #999;
-  font-size: 13px;
-  background: #fefdf9;
+  justify-content: center; align-items: center;
+  flex-shrink: 0; width: 100%;
+  background: #d92228; height: 36px; overflow: hidden;
 }
-
-.pdf-webview {
-  width: 100%;
-  height: 100%;
+.pdf-card-header-bg { width: 100%; height: 36px; }
+.pdf-card-header-title {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 16px; font-weight: bold;
+  color: #fbbf24; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+  white-space: nowrap; letter-spacing: 2px; z-index: 1;
 }
+.pdf-card-body {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  background: #fefdf9; min-height: 0; position: relative;
+}
+.pdf-page-img { width: 100%; height: 100%; }
+.page-num {
+  position: absolute; bottom: 4px; right: 4px;
+  background: rgba(0,0,0,0.5); color: #fff;
+  padding: 1px 6px; border-radius: 8px; font-size: 10px;
+}
+.pdf-status { font-size: 13px; color: #666; padding: 20px; }
 </style>

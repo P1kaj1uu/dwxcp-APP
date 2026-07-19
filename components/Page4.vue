@@ -1,49 +1,64 @@
 <template>
   <view class="page4">
     <view class="media-section">
-      <view class="section-header">
-        <text class="section-title">组织生活</text>
+      <view class="page4-header">
+        <image :src="hbgIconImage" mode="widthFix" class="page4-header-bg"></image>
+        <text class="page4-header-title">组织生活</text>
       </view>
       <view class="media-content">
+        <!-- 图片 -->
         <image
-          v-if="orgLifeMedia.length > 0 && orgLifeMedia[0].mediaType === 'image'"
-          :src="orgLifeMedia[0].fileUrl"
+          v-if="orgLifeMedia.length > 0 && orgLifeMedia[orgLifeIdx].mediaType === 'image'"
+          :src="orgLifeMedia[orgLifeIdx].fileUrl"
           mode="aspectFit"
           class="media-image"
-          @error="() => {}"
+          :key="'org-img-' + orgLifeIdx"
         ></image>
+        <!-- 视频 -->
         <video
-          v-else-if="orgLifeMedia.length > 0 && orgLifeMedia[0].mediaType === 'video'"
-          :src="orgLifeMedia[0].fileUrl"
-          autoplay
-          loop
-          muted
+          v-else-if="orgLifeMedia.length > 0 && orgLifeMedia[orgLifeIdx].mediaType === 'video'"
+          :src="orgLifeMedia[orgLifeIdx].fileUrl"
+          autoplay="true"
+          muted="true"
           object-fit="contain"
           class="media-video"
+          :key="'org-vid-' + orgLifeIdx"
+          :controls="false"
+          :enable-play-gesture="false"
+          :show-progress="false"
+          :show-center-play-btn="false"
+          @ended="nextOrgLife"
         ></video>
         <text v-else class="media-empty">暂无内容</text>
       </view>
     </view>
+
     <view class="media-section">
-      <view class="section-header">
-        <text class="section-title">活动风采</text>
+      <view class="page4-header">
+        <image :src="hbgIconImage" mode="widthFix" class="page4-header-bg"></image>
+        <text class="page4-header-title">活动风采</text>
       </view>
       <view class="media-content">
         <image
-          v-if="activityMedia.length > 0 && activityMedia[0].mediaType === 'image'"
-          :src="activityMedia[0].fileUrl"
+          v-if="activityMedia.length > 0 && activityMedia[activityIdx].mediaType === 'image'"
+          :src="activityMedia[activityIdx].fileUrl"
           mode="aspectFit"
           class="media-image"
-          @error="() => {}"
+          :key="'act-img-' + activityIdx"
         ></image>
         <video
-          v-else-if="activityMedia.length > 0 && activityMedia[0].mediaType === 'video'"
-          :src="activityMedia[0].fileUrl"
-          autoplay
-          loop
-          muted
+          v-else-if="activityMedia.length > 0 && activityMedia[activityIdx].mediaType === 'video'"
+          :src="activityMedia[activityIdx].fileUrl"
+          autoplay="true"
+          muted="true"
           object-fit="contain"
           class="media-video"
+          :key="'act-vid-' + activityIdx"
+          :controls="false"
+          :enable-play-gesture="false"
+          :show-progress="false"
+          :show-center-play-btn="false"
+          @ended="nextActivity"
         ></video>
         <text v-else class="media-empty">暂无内容</text>
       </view>
@@ -52,14 +67,48 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { ensureLogin } from '@/utils/auth'
 import { getMediaListApi, getShowMediaListApi } from '@/api/media'
+import { hbgIconImage } from '@/utils/images'
 
 const API_BASE_URL = 'http://123.60.91.107:2645'
 
 const orgLifeMedia = ref([])
 const activityMedia = ref([])
+const orgLifeIdx = ref(0)
+const activityIdx = ref(0)
+let orgTimer = null
+let actTimer = null
+
+function nextOrgLife() {
+  if (orgLifeMedia.value.length <= 1) return
+  orgLifeIdx.value = (orgLifeIdx.value + 1) % orgLifeMedia.value.length
+}
+
+function nextActivity() {
+  if (activityMedia.value.length <= 1) return
+  activityIdx.value = (activityIdx.value + 1) % activityMedia.value.length
+}
+
+function startCarousel() {
+  // 图片用定时器切换，视频用 @ended 事件触发
+  if (orgLifeMedia.value.length > 1) {
+    const first = orgLifeMedia.value[0]
+    const isImage = first && first.mediaType === 'image'
+    // 图片每5秒切换，视频由 @ended 驱动
+    if (isImage) {
+      orgTimer = setInterval(nextOrgLife, 5000)
+    }
+  }
+  if (activityMedia.value.length > 1) {
+    const first = activityMedia.value[0]
+    const isImage = first && first.mediaType === 'image'
+    if (isImage) {
+      actTimer = setInterval(nextActivity, 5000)
+    }
+  }
+}
 
 function detectMediaType(fileName) {
   const ext = fileName.toLowerCase()
@@ -103,7 +152,13 @@ onMounted(async () => {
     ])
     orgLifeMedia.value = processMedia(orgLifeRes?.data?.data, type)
     activityMedia.value = processMedia(activityRes?.data?.data, type)
+    startCarousel()
   } catch (e) { console.error(e) }
+})
+
+onUnmounted(() => {
+  if (orgTimer) clearInterval(orgTimer)
+  if (actTimer) clearInterval(actTimer)
 })
 </script>
 
@@ -127,18 +182,36 @@ onMounted(async () => {
   min-height: 0;
 }
 
-.section-header {
-  text-align: center;
-  margin-bottom: 8px;
+.page4-header {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   flex-shrink: 0;
+  width: 100%;
+  background: #d92228;
+  height: 36px;
+  margin-bottom: 8px;
+  overflow: hidden;
 }
 
-.section-title {
-  font-size: 20px;
+.page4-header-bg {
+  width: 100%;
+  height: 36px;
+}
+
+.page4-header-title {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 16px;
   font-weight: bold;
   color: #fbbf24;
   text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+  white-space: nowrap;
   letter-spacing: 2px;
+  z-index: 1;
 }
 
 .media-content {

@@ -56,6 +56,7 @@
           <view class="evaluation-block">
             <text class="evaluation-title">党小组考核结果</text>
             <view class="branch-table-wrap">
+              <!-- 固定表头 -->
               <view class="branch-table-header">
                 <text class="branch-cell w-24">党小组名称</text>
                 <text class="branch-cell w-12">一季度</text>
@@ -64,18 +65,24 @@
                 <text class="branch-cell w-12">四季度</text>
                 <text class="branch-cell w-12">上年度</text>
               </view>
-              <view class="branch-table-body">
+              <!-- 滚动内容（数据复制一份拼接，CSS动画无缝循环） -->
+              <view class="branch-table-scroll">
                 <view
-                  class="branch-table-row"
-                  v-for="(row, idx) in partyBranchTableData"
-                  :key="row.key || idx"
+                  class="branch-table-inner"
+                  :style="{ animationDuration: scrollDuration + 's' }"
                 >
-                  <text class="branch-cell w-24">{{ row.partyBranch || '-' }}</text>
-                  <text class="branch-cell w-12">{{ getPartyBranchLevelStyle(row.one) }}</text>
-                  <text class="branch-cell w-12">{{ getPartyBranchLevelStyle(row.two) }}</text>
-                  <text class="branch-cell w-12">{{ getPartyBranchLevelStyle(row.three) }}</text>
-                  <text class="branch-cell w-12">{{ getPartyBranchLevelStyle(row.four) }}</text>
-                  <text class="branch-cell w-12">{{ getPartyBranchLevelStyle(row.years) }}</text>
+                  <view
+                    class="branch-table-row"
+                    v-for="(row, idx) in scrollRows"
+                    :key="row.key + '-' + idx"
+                  >
+                    <text class="branch-cell w-24">{{ row.partyBranch || '-' }}</text>
+                    <text class="branch-cell w-12">{{ getPartyBranchLevelStyle(row.one) }}</text>
+                    <text class="branch-cell w-12">{{ getPartyBranchLevelStyle(row.two) }}</text>
+                    <text class="branch-cell w-12">{{ getPartyBranchLevelStyle(row.three) }}</text>
+                    <text class="branch-cell w-12">{{ getPartyBranchLevelStyle(row.four) }}</text>
+                    <text class="branch-cell w-12">{{ getPartyBranchLevelStyle(row.years) }}</text>
+                  </view>
                 </view>
               </view>
             </view>
@@ -128,6 +135,20 @@ const honorBoard = computed(() => {
 // 党小组表格数据
 const partyBranchTableData = computed(() => {
   return transformToPartyBranchData(partyBranchEvaluation.value)
+})
+
+// 复制一份数据用于无缝循环滚动
+const scrollRows = computed(() => {
+  const data = partyBranchTableData.value
+  if (data.length === 0) return []
+  return [...data, ...data]
+})
+
+// 滚动速度：每行约3秒，总时长控制在20~60秒
+const scrollDuration = computed(() => {
+  const n = partyBranchTableData.value.length
+  if (n <= 1) return 0
+  return Math.min(60, Math.max(20, n * 3))
 })
 
 // 转换党小组数据
@@ -375,6 +396,8 @@ onUnmounted(() => {
 .branch-table-wrap {
   width: 100%;
   flex: 1;
+  display: flex;
+  flex-direction: column;
   min-height: 0;
   overflow: hidden;
   border: 1px solid #a73300;
@@ -383,10 +406,22 @@ onUnmounted(() => {
 .branch-table-header {
   display: flex;
   background: #a73300;
+  flex-shrink: 0;
 }
 
-.branch-table-body {
-  max-height: 200px;
+.branch-table-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.branch-table-inner {
+  animation: branchScroll linear infinite;
+}
+
+@keyframes branchScroll {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-50%); }
 }
 
 .branch-table-row {

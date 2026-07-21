@@ -28,11 +28,19 @@ const fileIds = ref({})
 const pages = ref({ '重点工作': [], '党务公开': [], '光荣榜': [] })
 const currentIdx = ref({ '重点工作': 0, '党务公开': 0, '光荣榜': 0 })
 const loading = ref({ '重点工作': true, '党务公开': true, '光荣榜': true })
-let timers = {}
+let rotateTimers = {}
+let refreshTimer = null
 
-onUnmounted(() => { Object.values(timers).forEach(t => clearInterval(t)) })
+onUnmounted(() => {
+  Object.values(rotateTimers).forEach(t => clearInterval(t))
+  if (refreshTimer) clearInterval(refreshTimer)
+})
 
 async function fetchAll() {
+  // 清除旧轮播
+  Object.values(rotateTimers).forEach(t => clearInterval(t))
+  rotateTimers = {}
+  
   for (const category of categories) {
     try {
       const res = await getPdfListApi({ type: category })
@@ -44,7 +52,7 @@ async function fetchAll() {
         if (imgRes.data?.code === 200 && imgRes.data.data?.length > 0) {
           pages.value[category] = imgRes.data.data
           if (imgRes.data.data.length > 1) {
-            timers[category] = setInterval(() => {
+            rotateTimers[category] = setInterval(() => {
               currentIdx.value[category] = (currentIdx.value[category] + 1) % imgRes.data.data.length
             }, 4000)
           }
@@ -59,6 +67,8 @@ onMounted(async () => {
   await ensureLogin()
   await fetchAll()
   setTimeout(() => categories.forEach(c => { loading.value[c] = false }), 15000)
+  // 每10秒刷新数据
+  refreshTimer = setInterval(fetchAll, 10000)
 })
 </script>
 

@@ -93,6 +93,7 @@ const departmentOptions = [
 ]
 
 let carouselTimer = null
+let refreshTimer = null
 
 // 按部门分组
 function groupByType(data) {
@@ -206,7 +207,7 @@ async function fetchEvaluationResults() {
   }
 }
 
-// 每10秒切换轮播
+// 每5秒切换轮播
 function startCarousel() {
   carouselTimer = setInterval(() => {
     const next = { ...pageIndexes.value }
@@ -235,7 +236,7 @@ function startCarousel() {
     
     pageIndexes.value = next
     slideDirection.value = nextDir
-  }, 10000)
+  }, 5000)
 }
 
 onMounted(async () => {
@@ -255,10 +256,17 @@ onMounted(async () => {
     showSkeleton.value = false
     loading.value = false
   })
+  
+  // 每10秒刷新数据
+  refreshTimer = setInterval(() => {
+    fetchAllData()
+    fetchEvaluationResults()
+  }, 10000)
 })
 
 onUnmounted(() => {
   if (carouselTimer) clearInterval(carouselTimer)
+  if (refreshTimer) clearInterval(refreshTimer)
 })
 </script>
 

@@ -80,6 +80,7 @@ const orgLifeIdx = ref(0)
 const activityIdx = ref(0)
 let orgTimer = null
 let actTimer = null
+let refreshTimer = null
 
 function nextOrgLife() {
   if (orgLifeMedia.value.length <= 1) return
@@ -153,12 +154,27 @@ onMounted(async () => {
     orgLifeMedia.value = processMedia(orgLifeRes?.data?.data, type)
     activityMedia.value = processMedia(activityRes?.data?.data, type)
     startCarousel()
+    // 每10秒刷新数据
+    refreshTimer = setInterval(async () => {
+      let type = 'image'
+      try {
+        const sr = await getShowMediaListApi()
+        if (sr?.data?.code === 200) type = sr.data.data?.[0]?.type === 'video' ? 'video' : 'image'
+      } catch(e) {}
+      const [ol, ac] = await Promise.all([
+        getMediaListApi({ category: 'orgLife' }),
+        getMediaListApi({ category: 'activityStyle' })
+      ])
+      orgLifeMedia.value = processMedia(ol?.data?.data, type)
+      activityMedia.value = processMedia(ac?.data?.data, type)
+    }, 10000)
   } catch (e) { console.error(e) }
 })
 
 onUnmounted(() => {
   if (orgTimer) clearInterval(orgTimer)
   if (actTimer) clearInterval(actTimer)
+  if (refreshTimer) clearInterval(refreshTimer)
 })
 </script>
 

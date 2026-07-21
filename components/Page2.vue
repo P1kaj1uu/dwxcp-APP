@@ -110,6 +110,7 @@ const honorPageIndex = ref(0)
 const honorDirection = ref('left')
 
 let honorTimer = null
+let refreshTimer = null
 
 // 获取当前年份和季度
 function getCurrentYearAndQuarter() {
@@ -203,7 +204,6 @@ async function fetchData() {
 
 // 30秒切换一次光荣榜
 function startHonorCarousel() {
-  if (honorTotalPages.value <= 1) return
   honorTimer = setInterval(() => {
     honorDirection.value = honorDirection.value === 'left' ? 'right' : 'left'
     honorPageIndex.value = (honorPageIndex.value + 1) % honorTotalPages.value
@@ -222,10 +222,14 @@ onMounted(async () => {
     clearTimeout(safetyTimer)
     loading.value = false
   })
+  
+  // 每10秒刷新数据
+  refreshTimer = setInterval(fetchData, 10000)
 })
 
 onUnmounted(() => {
   if (honorTimer) clearInterval(honorTimer)
+  if (refreshTimer) clearInterval(refreshTimer)
 })
 </script>
 

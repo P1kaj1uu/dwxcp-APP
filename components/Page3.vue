@@ -40,7 +40,7 @@ async function fetchAll() {
   // 清除旧轮播
   Object.values(rotateTimers).forEach(t => clearInterval(t))
   rotateTimers = {}
-  
+
   for (const category of categories) {
     try {
       const res = await getPdfListApi({ type: category })
@@ -58,7 +58,8 @@ async function fetchAll() {
           }
         }
       }
-    } catch (e) { console.error('[Page3]', category, '失败:', e)
+    } catch (e) {
+      console.error('[Page3]', category, '失败:', e)
     } finally { loading.value[category] = false }
   }
 }
@@ -78,12 +79,13 @@ onMounted(async () => {
   flex: 1;
   display: flex;
   flex-direction: row;
-  gap: 8px;
-  padding: 8px;
+  gap: clamp(3px, 0.42vw, 16px);
+  padding: clamp(3px, 0.42vw, 16px);
   box-sizing: border-box;
   background: #f7eaca;
   min-height: 0;
 }
+
 .pdf-card {
   flex: 1;
   display: flex;
@@ -91,32 +93,71 @@ onMounted(async () => {
   border: 2px solid #d92228;
   overflow: hidden;
   border-radius: 2px;
+  min-width: 0;
+  min-height: 0;
 }
+
 .pdf-card-header {
   position: relative;
   display: flex;
-  justify-content: center; align-items: center;
-  flex-shrink: 0; width: 100%;
-  background: #d92228; height: 36px; overflow: hidden;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  width: 100%;
+  background: #d92228;
+  height: clamp(22px, 3.33vh, 72px);
+  overflow: hidden;
 }
-.pdf-card-header-bg { width: 100%; height: 36px; }
+
+.pdf-card-header-bg {
+  width: 100%;
+  height: 100%;
+}
+
 .pdf-card-header-title {
-  position: absolute; top: 50%; left: 50%;
+  position: absolute;
+  top: 50%;
+  left: 55%;
   transform: translate(-50%, -50%);
-  font-size: 16px; font-weight: bold;
-  color: #fbbf24; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-  white-space: nowrap; letter-spacing: 2px; z-index: 1;
+  font-size: clamp(9px, 0.83vw, 32px);
+  font-weight: bold;
+  color: #fbbf24;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+  letter-spacing: 2px;
+  z-index: 1;
 }
+
 .pdf-card-body {
-  flex: 1; display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  background: #fefdf9; min-height: 0; position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #fefdf9;
+  min-height: 0;
+  position: relative;
 }
-.pdf-page-img { width: 100%; height: 100%; }
+
+.pdf-page-img {
+  width: 100%;
+  height: 100%;
+}
+
 .page-num {
-  position: absolute; bottom: 4px; right: 4px;
-  background: rgba(0,0,0,0.5); color: #fff;
-  padding: 1px 6px; border-radius: 8px; font-size: 10px;
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  padding: 1px 6px;
+  border-radius: 8px;
+  font-size: 10px;
 }
-.pdf-status { font-size: 13px; color: #666; padding: 20px; }
+
+.pdf-status {
+  font-size: clamp(8px, 0.68vw, 26px);
+  color: #666;
+  padding: clamp(8px, 1.04vw, 40px);
+}
 </style>

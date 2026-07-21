@@ -17,6 +17,19 @@ onHide(() => {
 
 <style>
 /*每个页面公共css */
+html, body, #app, uni-app, uni-page, uni-page-wrapper, uni-page-body {
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	overflow: hidden;
+}
+
+body {
+	min-width: 640px;
+	background: #fff;
+	-webkit-font-smoothing: antialiased;
+}
+
 .uni-row {
 	flex-direction: row;
 }

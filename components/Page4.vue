@@ -7,28 +7,14 @@
       </view>
       <view class="media-content">
         <!-- 图片 -->
-        <image
-          v-if="orgLifeMedia.length > 0 && orgLifeMedia[orgLifeIdx].mediaType === 'image'"
-          :src="orgLifeMedia[orgLifeIdx].fileUrl"
-          mode="aspectFit"
-          class="media-image"
-          :key="'org-img-' + orgLifeIdx"
-        ></image>
+        <image v-if="orgLifeMedia.length > 0 && orgLifeMedia[orgLifeIdx].mediaType === 'image'"
+          :src="orgLifeMedia[orgLifeIdx].fileUrl" mode="aspectFit" class="media-image" :key="'org-img-' + orgLifeIdx">
+        </image>
         <!-- 视频 -->
-        <video
-          v-else-if="orgLifeMedia.length > 0 && orgLifeMedia[orgLifeIdx].mediaType === 'video'"
-          :src="orgLifeMedia[orgLifeIdx].fileUrl"
-          autoplay="true"
-          muted="true"
-          object-fit="contain"
-          class="media-video"
-          :key="'org-vid-' + orgLifeIdx"
-          :controls="false"
-          :enable-play-gesture="false"
-          :show-progress="false"
-          :show-center-play-btn="false"
-          @ended="nextOrgLife"
-        ></video>
+        <video v-else-if="orgLifeMedia.length > 0 && orgLifeMedia[orgLifeIdx].mediaType === 'video'"
+          :src="orgLifeMedia[orgLifeIdx].fileUrl" autoplay="true" muted="true" object-fit="contain" class="media-video"
+          :key="'org-vid-' + orgLifeIdx" :controls="false" :enable-play-gesture="false" :show-progress="false"
+          :show-center-play-btn="false" @ended="nextOrgLife"></video>
         <text v-else class="media-empty">暂无内容</text>
       </view>
     </view>
@@ -39,27 +25,13 @@
         <text class="page4-header-title">活动风采</text>
       </view>
       <view class="media-content">
-        <image
-          v-if="activityMedia.length > 0 && activityMedia[activityIdx].mediaType === 'image'"
-          :src="activityMedia[activityIdx].fileUrl"
-          mode="aspectFit"
-          class="media-image"
-          :key="'act-img-' + activityIdx"
-        ></image>
-        <video
-          v-else-if="activityMedia.length > 0 && activityMedia[activityIdx].mediaType === 'video'"
-          :src="activityMedia[activityIdx].fileUrl"
-          autoplay="true"
-          muted="true"
-          object-fit="contain"
-          class="media-video"
-          :key="'act-vid-' + activityIdx"
-          :controls="false"
-          :enable-play-gesture="false"
-          :show-progress="false"
-          :show-center-play-btn="false"
-          @ended="nextActivity"
-        ></video>
+        <image v-if="activityMedia.length > 0 && activityMedia[activityIdx].mediaType === 'image'"
+          :src="activityMedia[activityIdx].fileUrl" mode="aspectFit" class="media-image"
+          :key="'act-img-' + activityIdx"></image>
+        <video v-else-if="activityMedia.length > 0 && activityMedia[activityIdx].mediaType === 'video'"
+          :src="activityMedia[activityIdx].fileUrl" autoplay="true" muted="true" object-fit="contain"
+          class="media-video" :key="'act-vid-' + activityIdx" :controls="false" :enable-play-gesture="false"
+          :show-progress="false" :show-center-play-btn="false" @ended="nextActivity"></video>
         <text v-else class="media-empty">暂无内容</text>
       </view>
     </view>
@@ -114,9 +86,9 @@ function startCarousel() {
 function detectMediaType(fileName) {
   const ext = fileName.toLowerCase()
   if (ext.endsWith('.jpg') || ext.endsWith('.jpeg') || ext.endsWith('.png') ||
-      ext.endsWith('.gif') || ext.endsWith('.bmp') || ext.endsWith('.webp')) return 'image'
+    ext.endsWith('.gif') || ext.endsWith('.bmp') || ext.endsWith('.webp')) return 'image'
   if (ext.endsWith('.mp4') || ext.endsWith('.webm') || ext.endsWith('.ogg') ||
-      ext.endsWith('.mov') || ext.endsWith('.avi')) return 'video'
+    ext.endsWith('.mov') || ext.endsWith('.avi')) return 'video'
   if (ext.includes('video')) return 'video'
   return 'image'
 }
@@ -145,7 +117,7 @@ onMounted(async () => {
       type = res.data.data?.[0]?.type === 'video' ? 'video' : 'image'
     }
   } catch (e) { console.error(e) }
-  
+
   try {
     const [orgLifeRes, activityRes] = await Promise.all([
       getMediaListApi({ category: 'orgLife' }),
@@ -160,7 +132,7 @@ onMounted(async () => {
       try {
         const sr = await getShowMediaListApi()
         if (sr?.data?.code === 200) type = sr.data.data?.[0]?.type === 'video' ? 'video' : 'image'
-      } catch(e) {}
+      } catch (e) { }
       const [ol, ac] = await Promise.all([
         getMediaListApi({ category: 'orgLife' }),
         getMediaListApi({ category: 'activityStyle' })
@@ -184,8 +156,8 @@ onUnmounted(() => {
   flex: 1;
   display: flex;
   flex-direction: row;
-  gap: 12px;
-  padding: 12px;
+  gap: clamp(4px, 0.63vw, 24px);
+  padding: clamp(4px, 0.63vw, 24px);
   box-sizing: border-box;
   background: #f7eaca;
   min-height: 0;
@@ -206,14 +178,14 @@ onUnmounted(() => {
   flex-shrink: 0;
   width: 100%;
   background: #d92228;
-  height: 36px;
-  margin-bottom: 8px;
+  height: clamp(22px, 3.33vh, 72px);
+  margin-bottom: clamp(3px, 0.42vh, 9px);
   overflow: hidden;
 }
 
 .page4-header-bg {
   width: 100%;
-  height: 36px;
+  height: 100%;
 }
 
 .page4-header-title {
@@ -221,10 +193,10 @@ onUnmounted(() => {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 16px;
+  font-size: clamp(9px, 0.83vw, 32px);
   font-weight: bold;
   color: #fbbf24;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
   white-space: nowrap;
   letter-spacing: 2px;
   z-index: 1;
@@ -254,5 +226,6 @@ onUnmounted(() => {
 
 .media-empty {
   color: #999;
+  font-size: clamp(9px, 0.73vw, 28px);
 }
 </style>

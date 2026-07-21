@@ -66,7 +66,6 @@ import Page4 from '@/components/Page4.vue'
 </script>
 
 <style>
-/* 全局样式 - 用于整个应用 */
 page {
   margin: 0;
   padding: 0;
@@ -76,7 +75,9 @@ page {
   background: #fff;
 }
 
-view, text, image {
+view,
+text,
+image {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -94,10 +95,10 @@ view, text, image {
 .home-inner {
   width: 100%;
   height: 100%;
-  padding: 16px;
+  padding: clamp(6px, 0.83vw, 32px);
   padding-bottom: 0;
   display: flex;
-  gap: 16px;
+  gap: clamp(6px, 0.83vw, 32px);
   box-sizing: border-box;
 }
 
@@ -121,7 +122,7 @@ view, text, image {
 
 .right-flex-row {
   display: flex;
-  gap: 16px;
+  gap: clamp(6px, 0.83vw, 32px);
   flex: 1;
   min-height: 0;
 }
@@ -138,8 +139,8 @@ view, text, image {
 .sqiq-boxes {
   display: flex;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 32px;
+  gap: clamp(4px, 0.63vw, 24px);
+  margin-bottom: clamp(8px, 1.2vh, 24px);
   flex-shrink: 0;
 }
 
@@ -150,14 +151,14 @@ view, text, image {
 }
 
 .sqiq-header {
-  height: 44px;
+  height: clamp(24px, 4.05vh, 88px);
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 22px;
+  font-size: clamp(12px, 1.15vw, 44px);
   font-weight: bold;
   letter-spacing: 2px;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .sqiq-red {
@@ -167,30 +168,33 @@ view, text, image {
 
 .sqiq-body {
   color: #b4360c;
-  font-size: 20px;
+  font-size: clamp(11px, 1.04vw, 40px);
   font-weight: bold;
   letter-spacing: 2px;
 }
 
 .sqiq-text {
   display: block;
-  padding: 24px 24px 0 24px;
+  padding: clamp(5px, 1.35vh, 28px) clamp(4px, 0.7vw, 28px) 0;
 }
 
 .sqiq-text:last-child {
-  padding-bottom: 48px;
+  padding-bottom: clamp(8px, 2.6vh, 52px);
 }
 
 /* Page2 容器 */
 .page2-wrap {
   flex: 1;
   min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .page3-wrap {
   flex: 1;
   min-height: 0;
-  margin-bottom: 16px;
+  margin-bottom: clamp(5px, 0.83vh, 16px);
   display: flex;
   flex-direction: column;
 }
@@ -204,23 +208,47 @@ view, text, image {
 
 /* 底部标语横幅 */
 .bottom-banner {
-  height: 64px;
+  height: clamp(32px, 5.93vh, 128px);
   background-color: #a53605;
-  margin-top: 12px;
-  font-size: 22px;
+  margin-top: clamp(4px, 0.63vh, 14px);
+  font-size: clamp(12px, 1.15vw, 44px);
   font-weight: bold;
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 20px;
+  gap: clamp(8px, 1.04vw, 40px);
   flex-shrink: 0;
 }
 
 .banner-line {
-  width: 180px;
-  height: 2px;
+  width: min(9.4vw, 360px);
+  height: clamp(1px, 0.1vw, 4px);
   background-color: #fff;
+}
+
+@media (max-aspect-ratio: 4/3) {
+  .home-inner {
+    padding-left: 6px;
+    padding-right: 6px;
+    gap: 6px;
+  }
+
+  .left-panel {
+    width: 36%;
+  }
+
+  .right-panel {
+    width: 64%;
+  }
+
+  .right-flex-row {
+    gap: 6px;
+  }
+
+  .banner-line {
+    width: 6vw;
+  }
 }
 
 .banner-text {

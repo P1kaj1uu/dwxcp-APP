@@ -2,7 +2,7 @@
   <view class="page1">
     <!-- 标题图片 -->
     <view class="page1-header">
-      <image :src="hbgIconImage" mode="widthFix" class="header-bg"></image>
+      <image :src="hbgIconImage" mode="heightFix" class="header-bg"></image>
       <text class="header-title">基本情况</text>
     </view>
 
@@ -29,7 +29,7 @@
       </view>
 
       <!-- 正常数据展示 -->
-      <view v-if="!showSkeleton && !loading && groupedData.length > 0">
+      <view v-if="!showSkeleton && !loading && groupedData.length > 0" class="groups-container">
         <view v-for="(group, idx) in groupedData" :key="idx" class="group-item">
           <!-- 部门标题 -->
           <view class="group-title">
@@ -39,20 +39,10 @@
 
           <!-- 成员轮播 -->
           <view class="member-carousel">
-            <view
-              class="member-row"
-              :style="{ animation: `slideInFrom-${slideDirection[group.title] === 1 ? 'right' : 'left'} 0.6s ease` }"
-            >
-              <view
-                v-for="(member, mIdx) in getCurrentPageMembers(group)"
-                :key="member.id || mIdx"
-                class="member-card"
-              >
-                <image
-                  :src="getPhotoUrl(member.photo)"
-                  mode="aspectFill"
-                  class="member-photo"
-                ></image>
+            <view class="member-row"
+              :style="{ animation: `slideInFrom-${slideDirection[group.title] === 1 ? 'right' : 'left'} 0.6s ease` }">
+              <view v-for="(member, mIdx) in getCurrentPageMembers(group)" :key="member.id || mIdx" class="member-card">
+                <image :src="getPhotoUrl(member.photo)" mode="scaleToFill" class="member-photo"></image>
                 <text class="member-label">姓名：<text class="member-value">{{ member.name }}</text></text>
                 <text class="member-label">职务：<text class="member-value">{{ member.position }}</text></text>
               </view>
@@ -99,12 +89,12 @@ let refreshTimer = null
 function groupByType(data) {
   const groups = {}
   const orderMap = { '党支部委员会': 1, '车间分会委员会': 2, '团支部委员会': 3 }
-  
+
   data.forEach(member => {
     if (!groups[member.type]) groups[member.type] = []
     groups[member.type].push(member)
   })
-  
+
   return Object.keys(groups)
     .sort((a, b) => (orderMap[a] || 999) - (orderMap[b] || 999))
     .map(key => ({
@@ -151,7 +141,7 @@ async function fetchAllData() {
   try {
     const promises = departmentOptions.map(opt => getBasicByTypeApi(opt.value))
     const results = await Promise.all(promises)
-    
+
     let allMembers = []
     results.forEach((res, index) => {
       if (res.data && res.data.code === 200) {
@@ -173,10 +163,10 @@ async function fetchAllData() {
         allMembers.push(...members)
       }
     })
-    
+
     const groups = groupByType(allMembers)
     groupedData.value = groups
-    
+
     // 初始化轮播索引
     const initIndexes = {}
     const initDirs = {}
@@ -212,7 +202,7 @@ function startCarousel() {
   carouselTimer = setInterval(() => {
     const next = { ...pageIndexes.value }
     const nextDir = { ...slideDirection.value }
-    
+
     groupedData.value.forEach(group => {
       const totalPages = Math.ceil(group.content.length / 5)
       if (totalPages <= 1) {
@@ -223,7 +213,7 @@ function startCarousel() {
       const currentDir = slideDirection.value[group.title] || 1
       const currentPage = pageIndexes.value[group.title] || 0
       let newPage = currentPage + currentDir
-      
+
       if (newPage >= totalPages) {
         newPage = totalPages - 2
         nextDir[group.title] = -1
@@ -233,7 +223,7 @@ function startCarousel() {
       }
       next[group.title] = newPage
     })
-    
+
     pageIndexes.value = next
     slideDirection.value = nextDir
   }, 5000)
@@ -246,7 +236,7 @@ onMounted(async () => {
     showSkeleton.value = false
     loading.value = false
   }, 15000)
-  
+
   fetchEvaluationResults()
   fetchAllData().then(() => {
     clearTimeout(safetyTimer)
@@ -256,7 +246,7 @@ onMounted(async () => {
     showSkeleton.value = false
     loading.value = false
   })
-  
+
   // 每10秒刷新数据
   refreshTimer = setInterval(() => {
     fetchAllData()
@@ -278,6 +268,8 @@ onUnmounted(() => {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  height: 100%;
+  min-height: 0;
 }
 
 .page1-header {
@@ -288,178 +280,267 @@ onUnmounted(() => {
   flex-shrink: 0;
   width: 100%;
   background: #d92228;
+  height: clamp(24px, 4.08vh, 88px);
+  overflow: hidden;
 }
 
 .header-bg {
-  width: 100%;
-  height: 44px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: auto;
+  height: 100%;
+  display: block;
 }
 
 .header-title {
   position: absolute;
   top: 50%;
-  left: 52%;
+  left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 22px;
+  font-size: clamp(12px, 1.15vw, 44px);
   font-weight: bold;
   color: #fbbf24;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
   white-space: nowrap;
   letter-spacing: 2px;
+  z-index: 1;
 }
 
 .page1-body {
   flex: 1;
   width: 100%;
   background: #ffffe7;
-  padding: 12px;
+  padding: clamp(3px, 0.42vw, 16px);
   box-sizing: border-box;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.groups-container {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-auto-rows: minmax(0, 1fr);
+  gap: clamp(2px, 0.37vh, 8px);
+  overflow: hidden;
 }
 
 /* 骨架屏 */
-.skeleton-container { padding: 8px; }
-.skeleton-group { margin-bottom: 24px; }
+.skeleton-container {
+  flex: 1;
+  min-height: 0;
+  padding: clamp(3px, 0.42vw, 16px);
+  overflow: hidden;
+}
+
+.skeleton-group {
+  margin-bottom: clamp(6px, 1.1vh, 24px);
+}
+
 .skeleton-title {
-  width: 120px; height: 20px;
+  width: 25%;
+  height: clamp(10px, 1.04vw, 40px);
   background: #e0e0e0;
   border-radius: 4px;
-  margin: 0 auto 16px;
+  margin: 0 auto clamp(4px, 0.74vh, 16px);
   animation: shimmer 1.5s infinite;
 }
+
 .skeleton-cards {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: clamp(3px, 0.63vw, 24px);
   justify-content: center;
-  margin-bottom: 12px;
+  margin-bottom: clamp(3px, 0.56vh, 12px);
 }
+
 .skeleton-card-item {
-  width: 72px;
+  width: 15%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: clamp(2px, 0.21vw, 8px);
 }
+
 .skeleton-avatar {
-  width: 38px; height: 38px;
+  width: clamp(20px, 1.98vw, 76px);
+  height: clamp(20px, 1.98vw, 76px);
   background: #e0e0e0;
   border-radius: 50%;
   animation: shimmer 1.5s infinite;
 }
+
 .skeleton-line {
-  height: 12px;
+  height: clamp(6px, 0.63vw, 24px);
   background: #e0e0e0;
   border-radius: 4px;
   animation: shimmer 1.5s infinite;
 }
-.skeleton-line.short { width: 50px; }
-.skeleton-line.shorter { width: 40px; }
+
+.skeleton-line.short {
+  width: 70%;
+}
+
+.skeleton-line.shorter {
+  width: 56%;
+}
+
 .skeleton-stats {
-  width: 75%; height: 60px;
+  width: 75%;
+  height: clamp(24px, 4.63vh, 100px);
   background: #e0e0e0;
   border-radius: 4px;
   margin: 0 auto;
   animation: shimmer 1.5s infinite;
 }
+
 @keyframes shimmer {
-  0% { opacity: 1; }
-  50% { opacity: 0.4; }
-  100% { opacity: 1; }
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.4;
+  }
+
+  100% {
+    opacity: 1;
+  }
 }
 
 .empty-data {
   text-align: center;
-  padding: 40px;
+  padding: clamp(20px, 2.08vw, 80px);
+  font-size: clamp(10px, 0.83vw, 32px);
   color: #999;
 }
 
 .group-item {
-  margin-bottom: 16px;
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .group-title {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: clamp(10px, 0.94vw, 36px);
   font-weight: 700;
   color: #dc2626;
   text-align: center;
-  margin-bottom: 24px;
+  margin-bottom: clamp(2px, 0.37vh, 8px);
   flex-shrink: 0;
 }
 
 .group-icon {
-  width: 20px;
-  height: 20px;
-  margin-right: 6px;
+  width: clamp(11px, 1.04vw, 40px);
+  height: clamp(11px, 1.04vw, 40px);
+  margin-right: clamp(3px, 0.31vw, 12px);
 }
 
 .member-carousel {
   position: relative;
   overflow: hidden;
   width: 100%;
+  flex: 1;
+  min-height: 0;
 }
 
 .member-row {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: center;
-  gap: 4px;
+  gap: clamp(2px, 0.21vw, 8px);
+  height: 100%;
+  min-height: 0;
 }
 
 .member-card {
-  flex-shrink: 0;
-  width: 96px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  flex: 0 1 calc((100% - clamp(8px, 0.84vw, 32px)) / 5);
+  min-width: 0;
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto auto auto;
+  align-content: start;
+  gap: 0;
   border: 1px solid black;
-  padding-bottom: 0;
   overflow: hidden;
 }
 
 .member-photo {
   width: 100%;
-  height: 90px;
+  height: clamp(52px, 8vh, 172px);
   display: block;
-  flex-shrink: 0;
+  align-self: start;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
 }
 
 .member-label {
-  font-size: 12px;
+  width: 100%;
+  min-width: 0;
+  font-size: clamp(7px, 0.63vw, 24px);
   font-weight: 700;
   text-align: center;
   line-height: 1.2;
-  margin: 2px 4px 0;
+  padding: 1px 2px;
+  margin: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .member-value {
   position: relative;
-  display: inline-block;
+  display: inline;
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
 .stats-info {
-  padding: 0 12px;
-  margin: 20px 24px 0;
+  padding: 0 clamp(2px, 0.63vw, 24px);
+  margin: 0 clamp(3px, 1.25vw, 48px);
   font-weight: 700;
+  flex-shrink: 0;
 }
 
 .stats-text {
-  font-size: 12px;
-  line-height: 1.4;
+  display: block;
+  font-size: clamp(7px, 0.63vw, 24px);
+  line-height: 1.2;
   color: #374151;
   text-align: center;
 }
 
 @keyframes slideInFrom-right {
-  0% { opacity: 0; transform: translateX(30px); }
-  100% { opacity: 1; transform: translateX(0); }
+  0% {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
+
 @keyframes slideInFrom-left {
-  0% { opacity: 0; transform: translateX(-30px); }
-  100% { opacity: 1; transform: translateX(0); }
+  0% {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 </style>

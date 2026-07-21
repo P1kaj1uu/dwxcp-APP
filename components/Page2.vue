@@ -2,7 +2,7 @@
   <view class="page2">
     <!-- 标题 -->
     <view class="page2-header">
-      <image :src="hbgIconImage" mode="widthFix" class="header-bg"></image>
+      <image :src="hbgIconImage" mode="heightFix" class="header-bg"></image>
       <text class="header-title">考核评比</text>
     </view>
 
@@ -10,20 +10,21 @@
       <view class="content-row">
         <!-- 左侧光荣榜 -->
         <view class="honor-section">
-          <view
-            v-for="item in honorBoard"
-            :key="item.id"
-            class="honor-card"
-          >
+          <view v-for="item in honorBoard" :key="item.id" class="honor-card">
             <image :src="myImage" mode="aspectFill" class="honor-photo"></image>
             <text class="honor-name">{{ item.name }}</text>
             <view class="honor-details">
-              <text v-if="item.responsibilityPost" class="honor-tag">★ {{ item.responsibilityPost }}</text>
+              <view v-if="item.responsibilityPost" class="honor-tag">
+                <text class="tag-star">★</text>
+                <text class="tag-text">{{ item.responsibilityPost }}</text>
+              </view>
               <view v-if="item.good && item.good !== '否' && item.good !== 'x' && item.good !== 'X'" class="honor-tag">
-                <image :src="siYouImage" mode="aspectFit" class="tag-icon"></image> 四优党员
+                <image :src="siYouImage" mode="aspectFit" class="tag-icon"></image>
+                <text class="tag-text">四优党员</text>
               </view>
               <view v-if="item.responsibilityArea" class="honor-tag">
-                <image :src="hqqImage" mode="aspectFit" class="tag-icon"></image> {{ item.responsibilityArea }}
+                <image :src="hqqImage" mode="aspectFit" class="tag-icon"></image>
+                <text class="tag-text">{{ item.responsibilityArea }}</text>
               </view>
             </view>
           </view>
@@ -67,15 +68,8 @@
               </view>
               <!-- 滚动内容（数据复制一份拼接，CSS动画无缝循环） -->
               <view class="branch-table-scroll">
-                <view
-                  class="branch-table-inner"
-                  :style="{ animationDuration: scrollDuration + 's' }"
-                >
-                  <view
-                    class="branch-table-row"
-                    v-for="(row, idx) in scrollRows"
-                    :key="row.key + '-' + idx"
-                  >
+                <view class="branch-table-inner" :style="{ animationDuration: scrollDuration + 's' }">
+                  <view class="branch-table-row" v-for="(row, idx) in scrollRows" :key="row.key + '-' + idx">
                     <text class="branch-cell w-24">{{ row.partyBranch || '-' }}</text>
                     <text class="branch-cell w-12">{{ getPartyBranchLevelStyle(row.one) }}</text>
                     <text class="branch-cell w-12">{{ getPartyBranchLevelStyle(row.two) }}</text>
@@ -185,13 +179,13 @@ async function fetchData() {
   try {
     const { year, quarter } = getCurrentYearAndQuarter()
     currentQuarter.value = quarter
-    
+
     const [res1, res2, res3] = await Promise.all([
       getEvaluationListApi({ pageNum: 1, pageSize: 10000, year }),
       getPartyBranchEvaluationListApi({ pageNum: 1, pageSize: 10000, year }),
       getEvaluationResultList({ pageNum: 1, pageSize: 10000, year, quarter })
     ])
-    
+
     if (res1.data?.code === 200) dataSource.value = res1.data.data.list || []
     if (res2.data?.code === 200) partyBranchEvaluation.value = res2.data.data.list || []
     if (res3.data?.code === 200) evaluationResults.value = res3.data.data.list || []
@@ -222,7 +216,7 @@ onMounted(async () => {
     clearTimeout(safetyTimer)
     loading.value = false
   })
-  
+
   // 每10秒刷新数据
   refreshTimer = setInterval(fetchData, 10000)
 })
@@ -240,6 +234,9 @@ onUnmounted(() => {
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  height: 100%;
 }
 
 .page2-header {
@@ -250,47 +247,62 @@ onUnmounted(() => {
   flex-shrink: 0;
   width: 100%;
   background: #d92228;
+  height: clamp(24px, 4.08vh, 88px);
+  overflow: hidden;
 }
 
 .header-bg {
-  width: 100%;
-  height: 44px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: auto;
+  height: 100%;
+  display: block;
 }
 
 .header-title {
   position: absolute;
   top: 50%;
-  left: 52%;
+  left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 22px;
+  font-size: clamp(12px, 1.15vw, 44px);
   font-weight: bold;
   color: #fbbf24;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
   white-space: nowrap;
   letter-spacing: 2px;
+  z-index: 1;
 }
 
 .page2-body {
   flex: 1;
   width: 100%;
   background: #fff;
-  padding: 12px;
+  padding: clamp(4px, 0.63vw, 24px);
   box-sizing: border-box;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
 }
 
 .content-row {
   display: flex;
   flex-direction: row;
-  gap: 20px;
+  gap: clamp(5px, 1.04vw, 40px);
+  width: 100%;
+  height: 100%;
+  min-height: 0;
 }
 
 /* 光荣榜 */
 .honor-section {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  gap: clamp(2px, 0.42vw, 16px);
   flex-shrink: 0;
-  width: 280px;
+  width: 46%;
+  align-content: start;
+  min-width: 0;
 }
 
 .honor-card {
@@ -300,7 +312,7 @@ onUnmounted(() => {
 
 .honor-photo {
   width: 100%;
-  height: 80px;
+  height: clamp(32px, 7.4vh, 160px);
   display: block;
 }
 
@@ -308,15 +320,16 @@ onUnmounted(() => {
   background: #a73300;
   color: #fff;
   text-align: center;
-  padding: 4px;
+  padding: clamp(1px, 0.2vw, 8px);
   font-weight: bold;
-  font-size: 14px;
+  font-size: clamp(8px, 0.73vw, 28px);
   display: block;
 }
 
 .honor-details {
-  padding: 4px;
-  font-size: 12px;
+  --honor-icon-size: clamp(9px, 0.68vw, 26px);
+  padding: clamp(1px, 0.2vw, 8px);
+  font-size: clamp(7px, 0.63vw, 24px);
   line-height: 1.4;
   color: #333;
 }
@@ -324,13 +337,32 @@ onUnmounted(() => {
 .honor-tag {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: clamp(2px, 0.21vw, 8px);
   margin: 2px 0;
+  min-width: 0;
 }
 
 .tag-icon {
-  width: 11px;
-  height: 11px;
+  width: var(--honor-icon-size);
+  height: var(--honor-icon-size);
+  flex: 0 0 var(--honor-icon-size);
+  display: block;
+}
+
+.tag-star {
+  width: var(--honor-icon-size);
+  height: var(--honor-icon-size);
+  flex: 0 0 var(--honor-icon-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #dc2626;
+  font-size: var(--honor-icon-size);
+  line-height: 1;
+}
+
+.tag-text {
+  min-width: 0;
 }
 
 /* 考核结果 */
@@ -339,17 +371,28 @@ onUnmounted(() => {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: clamp(3px, 0.42vh, 9px);
 }
 
 .evaluation-block {
-  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.evaluation-block:first-child {
+  flex: 0 0 38%;
+}
+
+.evaluation-block:last-child {
+  flex: 1 1 62%;
 }
 
 .evaluation-title {
   font-weight: bold;
   margin-bottom: 4px;
-  font-size: 16px;
+  font-size: clamp(9px, 0.83vw, 32px);
   color: red;
   text-align: center;
   display: block;
@@ -359,6 +402,9 @@ onUnmounted(() => {
 .result-table {
   width: 100%;
   border: 1px solid #d9d9d9;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .result-row {
@@ -376,8 +422,8 @@ onUnmounted(() => {
 .result-cell {
   flex: 1;
   text-align: center;
-  padding: 6px 4px;
-  font-size: 13px;
+  padding: clamp(2px, 0.32vh, 7px) 2px;
+  font-size: clamp(7px, 0.68vw, 26px);
   border-right: 1px solid #d9d9d9;
   border-bottom: 1px solid #d9d9d9;
 }
@@ -385,7 +431,7 @@ onUnmounted(() => {
 .result-row.header .result-cell {
   color: #fff;
   font-weight: bold;
-  font-size: 14px;
+  font-size: clamp(8px, 0.73vw, 28px);
 }
 
 .result-cell:last-child {
@@ -424,8 +470,13 @@ onUnmounted(() => {
 }
 
 @keyframes branchScroll {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(-50%); }
+  0% {
+    transform: translateY(0);
+  }
+
+  100% {
+    transform: translateY(-50%);
+  }
 }
 
 .branch-table-row {
@@ -443,8 +494,8 @@ onUnmounted(() => {
 
 .branch-cell {
   text-align: center;
-  padding: 6px 8px;
-  font-size: 13px;
+  padding: clamp(2px, 0.4vh, 8px) 2px;
+  font-size: clamp(7px, 0.68vw, 26px);
   color: #333;
   border-right: 1px solid #d9d9d9;
 }
@@ -458,6 +509,14 @@ onUnmounted(() => {
   font-weight: bold;
 }
 
-.w-24 { width: 24%; }
-.w-12 { width: 12.66%; }
+.w-24 {
+  width: 24%;
+}
+
+.w-12 {
+  width: 12.66%;
+}
 </style>
+min-height: 0;
+overflow: hidden;
+display: flex;

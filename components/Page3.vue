@@ -2,7 +2,7 @@
   <view class="page3">
     <view v-for="category in categories" :key="category" class="pdf-card">
       <view class="pdf-card-header">
-        <image :src="hbgIconImage" mode="widthFix" class="pdf-card-header-bg"></image>
+        <image :src="hbgIconImage" mode="aspectFit" class="pdf-card-header-bg"></image>
         <text class="pdf-card-header-title">{{ category }}</text>
       </view>
       <view class="pdf-card-body">

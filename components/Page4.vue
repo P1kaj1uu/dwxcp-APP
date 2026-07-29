@@ -2,7 +2,7 @@
   <view class="page4">
     <view class="media-section">
       <view class="page4-header">
-        <image :src="hbgIconImage" mode="widthFix" class="page4-header-bg"></image>
+        <image :src="hbgIconImage" mode="aspectFit" class="page4-header-bg"></image>
         <text class="page4-header-title">组织生活</text>
       </view>
       <view class="media-content">
@@ -21,7 +21,7 @@
 
     <view class="media-section">
       <view class="page4-header">
-        <image :src="hbgIconImage" mode="widthFix" class="page4-header-bg"></image>
+        <image :src="hbgIconImage" mode="aspectFit" class="page4-header-bg"></image>
         <text class="page4-header-title">活动风采</text>
       </view>
       <view class="media-content">
@@ -191,7 +191,7 @@ onUnmounted(() => {
 .page4-header-title {
   position: absolute;
   top: 50%;
-  left: 50%;
+  left: 55%;
   transform: translate(-50%, -50%);
   font-size: clamp(9px, 0.83vw, 32px);
   font-weight: bold;

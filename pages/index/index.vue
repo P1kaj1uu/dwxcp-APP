@@ -138,6 +138,7 @@ image {
 /* 四强/四优盒子 */
 .sqiq-boxes {
   display: flex;
+  flex: 1;
   justify-content: space-between;
   gap: clamp(4px, 0.63vw, 24px);
   margin-bottom: clamp(8px, 1.2vh, 24px);

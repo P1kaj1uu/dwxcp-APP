@@ -2,7 +2,7 @@
   <view class="page2">
     <!-- 标题 -->
     <view class="page2-header">
-      <image :src="hbgIconImage" mode="heightFix" class="header-bg"></image>
+      <image :src="hbgIconImage" mode="aspectFit" class="header-bg"></image>
       <text class="header-title">考核评比</text>
     </view>
 
@@ -252,18 +252,14 @@ onUnmounted(() => {
 }
 
 .header-bg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: auto;
+  width: 100%;
   height: 100%;
-  display: block;
 }
 
 .header-title {
   position: absolute;
   top: 50%;
-  left: 50%;
+  left: 55%;
   transform: translate(-50%, -50%);
   font-size: clamp(12px, 1.15vw, 44px);
   font-weight: bold;
@@ -382,11 +378,12 @@ onUnmounted(() => {
 }
 
 .evaluation-block:first-child {
-  flex: 0 0 38%;
+  flex: 0 0 22%;
+  margin-bottom: 12px;
 }
 
 .evaluation-block:last-child {
-  flex: 1 1 62%;
+  flex: 1 1 78%;
 }
 
 .evaluation-title {
@@ -401,7 +398,6 @@ onUnmounted(() => {
 /* 本支部考核结果表格 */
 .result-table {
   width: 100%;
-  border: 1px solid #d9d9d9;
   flex: 1;
   min-height: 0;
   overflow: hidden;
@@ -450,7 +446,6 @@ onUnmounted(() => {
   flex-direction: column;
   min-height: 0;
   overflow: hidden;
-  border: 1px solid #a73300;
 }
 
 .branch-table-header {
@@ -517,6 +512,3 @@ onUnmounted(() => {
   width: 12.66%;
 }
 </style>
-min-height: 0;
-overflow: hidden;
-display: flex;

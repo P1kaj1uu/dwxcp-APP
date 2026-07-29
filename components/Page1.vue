@@ -2,7 +2,7 @@
   <view class="page1">
     <!-- 标题图片 -->
     <view class="page1-header">
-      <image :src="hbgIconImage" mode="heightFix" class="header-bg"></image>
+      <image :src="hbgIconImage" mode="aspectFit" class="header-bg"></image>
       <text class="header-title">基本情况</text>
     </view>
 
@@ -285,18 +285,14 @@ onUnmounted(() => {
 }
 
 .header-bg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: auto;
+  width: 100%;
   height: 100%;
-  display: block;
 }
 
 .header-title {
   position: absolute;
   top: 50%;
-  left: 50%;
+  left: 55%;
   transform: translate(-50%, -50%);
   font-size: clamp(12px, 1.15vw, 44px);
   font-weight: bold;
@@ -448,7 +444,6 @@ onUnmounted(() => {
   position: relative;
   overflow: hidden;
   width: 100%;
-  /* flex: 1; */
   min-height: 0;
 }
 
@@ -457,13 +452,14 @@ onUnmounted(() => {
   flex-wrap: nowrap;
   justify-content: center;
   gap: clamp(2px, 0.21vw, 8px);
-  /* height: 100%; */
   min-height: 0;
 }
 
 .member-card {
-  /* flex: 0 1 calc((100% - clamp(8px, 0.84vw, 32px)) / 5); */
+  flex: 0 0 calc((100% - clamp(8px, 0.84vw, 32px)) / 5);
+  width: calc((100% - clamp(8px, 0.84vw, 32px)) / 5);
   min-width: 0;
+  box-sizing: border-box;
   height: 100%;
   min-height: 0;
   display: grid;
@@ -476,7 +472,7 @@ onUnmounted(() => {
 
 .member-photo {
   width: 100%;
-  height: clamp(52px, 8vh, 172px);
+  height: clamp(66px, 8vh, 172px);
   display: block;
   align-self: start;
   overflow: hidden;
@@ -489,7 +485,6 @@ onUnmounted(() => {
   min-width: 0;
   font-size: clamp(7px, 0.63vw, 24px);
   font-weight: 700;
-  /* text-align: center; */
   line-height: 1.2;
   padding: 1px 2px;
   margin: 0;

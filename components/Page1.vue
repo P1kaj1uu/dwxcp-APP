@@ -240,7 +240,7 @@ onMounted(async () => {
   fetchEvaluationResults()
   fetchAllData().then(() => {
     clearTimeout(safetyTimer)
-    startCarousel()
+    // startCarousel()
   }).catch(() => {
     clearTimeout(safetyTimer)
     showSkeleton.value = false
@@ -248,10 +248,10 @@ onMounted(async () => {
   })
 
   // 每10秒刷新数据
-  refreshTimer = setInterval(() => {
-    fetchAllData()
-    fetchEvaluationResults()
-  }, 10000)
+  // refreshTimer = setInterval(() => {
+  //   fetchAllData()
+  //   fetchEvaluationResults()
+  // }, 10000)
 })
 
 onUnmounted(() => {
@@ -434,7 +434,7 @@ onUnmounted(() => {
   font-weight: 700;
   color: #dc2626;
   text-align: center;
-  margin-bottom: clamp(2px, 0.37vh, 8px);
+  margin-bottom: clamp(8px, 0.67vh, 16px);
   flex-shrink: 0;
 }
 
@@ -448,7 +448,7 @@ onUnmounted(() => {
   position: relative;
   overflow: hidden;
   width: 100%;
-  flex: 1;
+  /* flex: 1; */
   min-height: 0;
 }
 
@@ -457,12 +457,12 @@ onUnmounted(() => {
   flex-wrap: nowrap;
   justify-content: center;
   gap: clamp(2px, 0.21vw, 8px);
-  height: 100%;
+  /* height: 100%; */
   min-height: 0;
 }
 
 .member-card {
-  flex: 0 1 calc((100% - clamp(8px, 0.84vw, 32px)) / 5);
+  /* flex: 0 1 calc((100% - clamp(8px, 0.84vw, 32px)) / 5); */
   min-width: 0;
   height: 100%;
   min-height: 0;
@@ -489,7 +489,7 @@ onUnmounted(() => {
   min-width: 0;
   font-size: clamp(7px, 0.63vw, 24px);
   font-weight: 700;
-  text-align: center;
+  /* text-align: center; */
   line-height: 1.2;
   padding: 1px 2px;
   margin: 0;
@@ -507,7 +507,7 @@ onUnmounted(() => {
 
 .stats-info {
   padding: 0 clamp(2px, 0.63vw, 24px);
-  margin: 0 clamp(3px, 1.25vw, 48px);
+  margin: 20px clamp(3px, 1.25vw, 48px) 0;
   font-weight: 700;
   flex-shrink: 0;
 }
